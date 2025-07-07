@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "AI待办助理",
+  "navigationBarBackgroundColor": "#667eea",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#f8fafc",
+  "backgroundTextStyle": "light",
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 50,
+  "usingComponents": {}
+} 

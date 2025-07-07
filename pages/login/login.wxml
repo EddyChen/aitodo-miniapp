@@ -1,0 +1,142 @@
+<!--pages/login/login.wxml-->
+<view class="login-container">
+  <!-- 顶部标题 -->
+  <view class="header-section">
+    <view class="title">AI待办助理</view>
+    <view class="subtitle">您的智能待办事项管理助手</view>
+  </view>
+
+  <!-- 登录表单 -->
+  <view class="form-section">
+    <!-- 步骤1: 手机号输入 -->
+    <view wx:if="{{step === 1}}" class="step-content">
+      <!-- 手机号输入 -->
+      <view class="form-group">
+        <view class="form-label">手机号</view>
+        <view class="phone-input-container">
+          <text class="country-code">+86</text>
+          <input 
+            class="phone-input"
+            type="number"
+            maxlength="11"
+            placeholder="请输入手机号"
+            value="{{phoneNumber}}"
+            bindinput="onPhoneInput"
+          />
+        </view>
+      </view>
+
+      <!-- 协议同意 -->
+      <view class="agreement-section">
+        <checkbox-group bindchange="onAgreeChange">
+          <label class="agreement-checkbox">
+            <checkbox value="agree" checked="{{agreed}}" />
+            <text class="agreement-text">
+              我已阅读并同意<text class="link" bindtap="onViewAgreement">《用户协议》</text>和<text class="link" bindtap="onViewPrivacy">《隐私政策》</text>
+            </text>
+          </label>
+        </checkbox-group>
+      </view>
+
+      <!-- 发送验证码按钮 -->
+      <view class="button-section">
+        <button 
+          class="login-btn btn-primary btn-block {{loading ? 'loading' : ''}}"
+          bindtap="onSendCode"
+          disabled="{{loading || !phoneNumber || !agreed}}"
+        >
+          <text wx:if="{{!loading}}">发送验证码</text>
+          <text wx:else>正在发送...</text>
+        </button>
+      </view>
+    </view>
+
+    <!-- 步骤2: 验证码输入 -->
+    <view wx:if="{{step === 2}}" class="step-content">
+      <!-- 手机号显示 -->
+      <view class="phone-display">
+        <view class="phone-display-label">验证码已发送至</view>
+        <view class="phone-display-number">{{phoneNumber}}</view>
+      </view>
+
+      <!-- 验证码输入 -->
+      <view class="form-group">
+        <view class="form-label">验证码</view>
+        <view class="code-input-container">
+          <input 
+            class="code-input"
+            type="number"
+            maxlength="6"
+            placeholder="请输入6位验证码"
+            value="{{verificationCode}}"
+            bindinput="onCodeInput"
+            focus="true"
+          />
+        </view>
+      </view>
+
+      <!-- 重发验证码 -->
+      <view class="resend-section">
+        <text wx:if="{{countdown > 0}}" class="countdown-text">
+          {{countdown}}秒后可重新发送
+        </text>
+        <text wx:else class="resend-btn" bindtap="onResendCode">
+          重新发送验证码
+        </text>
+      </view>
+
+      <!-- 验证码登录按钮 -->
+      <view class="button-section">
+        <button 
+          class="login-btn btn-primary btn-block {{loading ? 'loading' : ''}}"
+          bindtap="onVerifyCode"
+          disabled="{{loading || !verificationCode}}"
+        >
+          <text wx:if="{{!loading}}">登录</text>
+          <text wx:else>正在验证...</text>
+        </button>
+        
+        <button 
+          class="back-btn btn-secondary btn-block mt-3"
+          bindtap="onBackStep"
+          disabled="{{loading}}"
+        >
+          返回上一步
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 功能特色展示 -->
+  <view class="features-section" wx:if="{{step === 1}}">
+    <view class="features-title">功能亮点</view>
+    <view class="features-grid">
+      <view class="feature-item">
+        <view class="feature-icon">🤖</view>
+        <view class="feature-text">AI智能分析</view>
+      </view>
+      <view class="feature-item">
+        <view class="feature-icon">📅</view>
+        <view class="feature-text">日历管理</view>
+      </view>
+      <view class="feature-item">
+        <view class="feature-icon">📸</view>
+        <view class="feature-text">图片识别</view>
+      </view>
+      <view class="feature-item">
+        <view class="feature-icon">⏰</view>
+        <view class="feature-text">智能提醒</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部信息 -->
+  <view class="footer-section">
+    <view class="contact-info">
+      <text class="contact-link" bindtap="onContactService">联系客服</text>
+    </view>
+    <view class="copyright">
+      <text class="copyright-text">© 2025 AI待办助理</text>
+    </view>
+  </view>
+</view> 

@@ -1,0 +1,273 @@
+# Instructions
+
+During your interaction with the user, if you find anything reusable in this project (e.g. version of a library, model name), especially about a fix to a mistake you made or a correction you received, you should take note in the `Lessons` section in the `.cursorrules` file so you will not make the same mistake again. 
+
+You should also use the `.cursorrules` file as a Scratchpad to organize your thoughts. Especially when you receive a new task, you should first review the content of the Scratchpad, clear old different task if necessary, first explain the task, and plan the steps you need to take to complete the task. You can use todo markers to indicate the progress, e.g.
+[X] Task 1
+[ ] Task 2
+
+Also update the progress of the task in the Scratchpad when you finish a subtask.
+Especially when you finished a milestone, it will help to improve your depth of task accomplishment to use the Scratchpad to reflect and plan.
+The goal is to help you maintain a big picture as well as the progress of the task. Always refer to the Scratchpad when you plan the next step.
+
+# Tools
+
+Note all the tools are in python3. So in the case you need to do batch processing, you can always consult the python files and write your own script.
+
+## Screenshot Verification
+
+The screenshot verification workflow allows you to capture screenshots of web pages and verify their appearance using LLMs. The following tools are available:
+
+1. Screenshot Capture:
+```bash
+venv/bin/python3 tools/screenshot_utils.py URL [--output OUTPUT] [--width WIDTH] [--height HEIGHT]
+```
+
+2. LLM Verification with Images:
+```bash
+venv/bin/python3 tools/llm_api.py --prompt "Your verification question" --provider {openai|anthropic} --image path/to/screenshot.png
+```
+
+Example workflow:
+```python
+from screenshot_utils import take_screenshot_sync
+from llm_api import query_llm
+
+# Take a screenshot
+
+screenshot_path = take_screenshot_sync('https://example.com', 'screenshot.png')
+
+# Verify with LLM
+
+response = query_llm(
+    "What is the background color and title of this webpage?",
+    provider="openai",  # or "anthropic"
+    image_path=screenshot_path
+)
+print(response)
+```
+
+## LLM
+
+You always have an LLM at your side to help you with the task. For simple tasks, you could invoke the LLM by running the following command:
+```
+venv/bin/python3 ./tools/llm_api.py --prompt "What is the capital of France?" --provider "anthropic"
+```
+
+The LLM API supports multiple providers:
+- OpenAI (default, model: gpt-4o)
+- Azure OpenAI (model: configured via AZURE_OPENAI_MODEL_DEPLOYMENT in .env file, defaults to gpt-4o-ms)
+- DeepSeek (model: deepseek-chat)
+- Anthropic (model: claude-3-sonnet-20240229)
+- Gemini (model: gemini-pro)
+- Local LLM (model: Qwen/Qwen2.5-32B-Instruct-AWQ)
+
+But usually it's a better idea to check the content of the file and use the APIs in the `tools/llm_api.py` file to invoke the LLM if needed.
+
+## Web browser
+
+You could use the `tools/web_scraper.py` file to scrape the web.
+```bash
+venv/bin/python3 ./tools/web_scraper.py --max-concurrent 3 URL1 URL2 URL3
+```
+This will output the content of the web pages.
+
+## Search engine
+
+You could use the `tools/search_engine.py` file to search the web.
+```bash
+venv/bin/python3 ./tools/search_engine.py "your search keywords"
+```
+This will output the search results in the following format:
+```
+URL: https://example.com
+Title: This is the title of the search result
+Snippet: This is a snippet of the search result
+```
+If needed, you can further use the `web_scraper.py` file to scrape the web page content.
+
+# Lessons
+
+## User Specified Lessons
+
+- You have a python venv in ./venv. Always use (activate) it when doing python development. First, to check whether 'uv' is available, use `which uv`. If that's the case, first activate the venv, and then use `uv pip install` to install packages. Otherwise, fall back to `pip`.
+- Due to Cursor's limit, when you use `git` and `gh` and need to submit a multiline commit message, first write the message in a file, and then use `git commit -F <filename>` or similar command to commit. And then remove the file. Include "[Cursor] " in the commit message and PR title.
+
+## Cursor learned
+
+- For search results, ensure proper handling of different character encodings (UTF-8) for international queries
+- When using seaborn styles in matplotlib, use 'seaborn-v0_8' instead of 'seaborn' as the style name due to recent seaborn version changes
+- Use 'gpt-4o' as the model name for OpenAI's GPT-4 with vision capabilities
+- When searching for recent news, use the current year (2025) instead of previous years, or simply use the "recent" keyword to get the latest information
+- 微信小程序开发需要注意webview的业务域名配置，必须在微信公众平台后台添加域名白名单
+- 个人微信小程序无法配置业务域名，需要使用纯native代码实现功能
+- 后端功能已在Cloudflare上实现，小程序开发只需要专注前端部分，复用现有后端接口
+- 微信小程序tabBar配置中的图标文件必须存在，否则会报错。可以使用SVG格式的图标文件，重命名为PNG格式即可
+- 微信小程序WXSS不支持中文类名，CSS类名必须使用英文，需要在JavaScript中预处理中文数据转换为英文类名
+- scope.userInfo权限配置已被弃用，在app.json中应该移除此配置
+- 微信小程序的权限配置(scope.camera、scope.album)建议在代码中动态请求，而不是在app.json中预先声明
+- 引用模块导出的函数时，需要注意函数的嵌套结构，如dateUtils.formatDate需要正确解构引用
+- API响应拦截器需要处理不同数据格式的API，有些API返回标准格式{success: true}，有些直接返回数据，需要根据URL或数据结构区分处理
+- 待办状态切换API需要支持双向切换，即从未完成到完成，以及从完成到未完成，需要传递当前状态参数
+- 日历标题栏布局问题可通过调整按钮大小、使用flex布局和white-space: nowrap解决换行问题
+- 使用wx.showModal代替自定义uiUtils.showModal方法，可以避免依赖缺失问题
+- 待办状态切换需要立即更新页面显示，使用乐观更新（Optimistic Update）机制：先更新本地显示，再同步后端数据，失败时回滚
+- 微信小程序中输入框超出背景框的问题可通过添加 box-sizing: border-box 解决
+- 小程序模板中使用 .trim() 方法可能有兼容性问题，建议使用 .length === 0 进行空字符串判断
+- AI分析接口需要更长的超时时间，建议为AI相关接口单独设置60秒或更长的超时时间，避免网络请求超时
+- 图片选择函数需要返回数组格式以保持API一致性，调用时需要取第一个元素作为图片路径
+- 图片上传前需要验证图片路径有效性，避免路径不完整导致的上传失败
+- 小程序图片上传的header配置需要与curl命令保持一致，包括正确的Referer和User-Agent
+- 图片AI识别API返回的字段名与预期不符，需要正确映射：API返回extracted字段而非parsed_todos，且字段映射为date->due_date, time->due_time, involved_people->involved_users, category->tags
+- 微信小程序按钮文字居中需要显式添加text-align: center样式，仅设置line-height不足以保证文字居中
+- add-todo页面的表单验证需要通过JavaScript计算属性实现，避免在模板中使用.trim()等方法导致的兼容性问题
+- 微信小程序不允许设置某些不安全的HTTP头部，如User-Agent和Referer，需要从API请求中移除这些头部
+- 微信小程序代码质量优化：启用分包懒加载需要在app.json中配置subpackages和preloadRule，在project.config.json中启用lazyloadPlaceholderEnable和preloadBackgroundData
+- 小程序图片资源优化：设计参考图片应存放在项目外部，避免超过200K限制影响代码质量评分，运行时图片使用最小化占位符
+- 微信小程序按需注入（Lazy Code Loading）：必须在app.json中添加"lazyCodeLoading": "requiredComponents"配置才能启用按需注入功能，仅配置分包和预加载规则是不够的
+
+# Scratchpad
+
+## 当前任务：开发微信小程序前端 - 复用现有后端接口
+
+### 任务背景
+用户已经在Cloudflare上实现了完整的后端功能，包括：
+- 用户登录系统
+- 待办事项管理
+- AI分析功能（文字分析、图片识别）
+- 节假日查询
+
+现在只需要开发小程序前端部分，调用现有的后端接口。
+
+### 技术架构
+- 前端：微信小程序 Native 开发
+- 后端：现有Cloudflare Workers + Pages架构
+- 数据流：小程序 -> 后端API -> 返回数据
+
+### 需要的信息
+[ ] 后端API基础信息
+  [ ] API基础URL
+  [ ] 认证方式（API Key、Token等）
+[ ] 主要接口文档
+  [ ] 用户登录接口
+  [ ] 待办事项CRUD接口
+  [ ] AI分析接口（文字、图片）
+  [ ] 节假日查询接口
+[ ] 数据结构定义
+  [ ] 用户信息格式
+  [ ] 待办事项数据结构
+  [ ] AI分析返回格式
+
+### 开发计划（调整后）
+[ ] 第一阶段：基础架构
+  [X] 更新应用配置
+  [X] 创建API服务封装
+  [X] 实现手机号登录页面
+  [X] 获取后端接口文档
+
+[ ] 第二阶段：核心页面开发
+  [X] 日历页面（含节假日显示）
+  [ ] 待办事项列表页面
+  [X] 添加待办页面
+  [ ] 待办详情页面
+
+[ ] 第三阶段：AI功能集成
+  [X] 文字输入AI分析
+  [X] 图片拍照上传功能
+  [X] 图片AI识别
+  [X] 结果确认对话框
+
+[X] 第四阶段：功能完善
+  [X] 用户体验优化
+  [X] 错误处理
+  [X] 性能优化
+  [X] 测试调试
+
+### 页面设计参考
+- signin-page.png：手机号登录页面
+- main-page.png：日历主页面
+- add-todo-page.png：添加待办页面
+
+### 技术关键点
+- Base URL: https://todo.chenrf.top/api
+- 认证: Bearer Token 
+- 登录流程: 手机号 -> 验证码 -> Token
+- 节假日API: /api/holidays
+- 待办事项优先级: 一般/紧急/非常紧急
+- AI分析: 文本(/ai-parser) + 图片(/image-parser)
+
+### 当前状态
+✅ 小程序主要功能开发完成，包括：
+- 用户登录系统
+- 日历页面和待办事项显示
+- 添加待办页面（手动输入、AI文字分析、图片AI识别）
+- AI功能集成完成，图片识别和文字分析均正常工作
+- UI简化优化，移除tabBar、简化交互逻辑、增强待办显示内容
+
+### 进度记录
+开始时间: 2025-01-10
+当前状态: ✅ 项目开发完成，所有核心功能正常工作
+最近修复: 
+- 创建了tabBar所需的图标文件（calendar.png, calendar-active.png, add.png, add-active.png）
+- 修复了CSS中中文类名编译错误（priority-一般等）
+- 修复了app.json中过时的权限配置（scope.userInfo、scope.camera、scope.album）
+- 修复了JavaScript函数引用错误（formatDate函数）
+- 创建了logo.png文件解决图片资源缺失问题
+- 修复了API响应拦截器对不同数据格式的处理问题（节假日API）
+- 2025-01-10 修复了日历标题栏按钮过大和月份名称换行问题
+- 2025-01-10 修复了待办状态切换API不支持从完成到未完成的问题
+- 2025-01-10 修复了add-todo页面formatTime函数引用错误
+- 2025-01-10 修复了add-todo页面uiUtils.showModal函数缺失问题
+- 2025-01-10 修复了待办状态切换后页面显示不立即更新的问题，采用乐观更新机制
+- 2025-01-10 优化了add-todo页面：调整模式顺序（AI文字分析、图片识别、手动输入），默认选中图片识别
+- 2025-01-10 修复了add-todo页面输入框超出背景框的问题，添加box-sizing: border-box
+- 2025-01-10 修复了AI文字分析按钮enable状态问题，改用字符串长度判断
+- 2025-01-10 修复了AI分析网络超时问题，为AI接口设置60秒超时时间
+- 2025-01-10 优化了AI分析错误处理，增加调试日志和友好错误提示，AI服务不可用时引导用户切换到手动输入
+- 2025-01-10 修复了图片选择功能：修复imageUtils.chooseImage函数参数格式，增加图片路径验证，增加权限检查
+- 2025-01-10 优化了图片上传功能：更新header配置与curl命令保持一致，增加详细的调试日志，改进错误处理机制
+- 2025-01-10 优化了登录页面：删除了logo框，删除了快速体验按钮，将用户协议和隐私政策的勾选框放在一排显示
+- 2025-01-10 在日历页面添加了退出登录按钮，放在用户名右侧，点击后会弹出确认对话框
+- 2025-01-10 修复了图片AI识别功能的关键bug：API返回字段名不匹配（extracted vs parsed_todos），字段映射错误（date->due_date, time->due_time, involved_people->involved_users, category->tags）
+- 2025-01-10 修复了登录页面和验证码页面的按钮文字居中问题，为所有按钮添加text-align: center样式
+- 2025-01-10 修复了add-todo页面的表单验证问题：图片识别结果预览显示错误的字段名，保存按钮使用.trim()方法导致的兼容性问题，改用JavaScript计算属性formValid
+- 2025-01-10 修复了微信小程序不安全HTTP头部错误：移除了User-Agent和Referer头部，避免"Refused to set unsafe header"错误
+- 2025-01-10 优化了多个待办事项处理：支持一条一条确认保存，删除清空按钮，完善预览显示内容，优化UI显示逻辑
+- 2025-01-10 删除了待办导航UI：移除了"第x个，共x个"文字和"上一个/下一个"按钮，简化界面；增加标签数据映射调试信息
+- 2025-01-10 修复了预览中标签和涉及人员显示为空的问题：将模板中的.join()方法替换为wx:for循环，解决小程序兼容性问题
+- 2025-01-10 修复了AI文字分析功能：API返回extracted字段为单个对象而非数组，修复字段映射逻辑处理文字识别和图片识别的不同数据格式
+- 2025-01-10 修复了webview管理错误：优化页面跳转时机，减少延迟时间，添加页面存在性检查，增加onUnload清理逻辑
+- 2025-01-10 修复了微信小程序代码质量问题：启用分包懒加载功能，移除超过200K的设计参考图片，修复损坏的logo.png文件
+- 2025-01-10 修复了懒加载代码配置遗漏：在app.json中添加"lazyCodeLoading": "requiredComponents"配置，正确启用按需注入功能
+
+### UI优化完成 (2025-01-10)
+- 移除了底部tabBar，简化界面
+- 删除了日历点击弹出框，直接显示待办
+- 移除了"查看全部"按钮，简化操作
+- 修复了"添加待办"按钮的点击事件
+- 增强了待办事项显示：标题、描述、时间、标签、涉及人员
+- 移除了重复的添加待办按钮（空列表中的按钮）
+- 删除了待办事项的详情页跳转，改为直接显示完整信息
+- 实现了勾选框点击切换待办状态功能
+- 删除了日历标题栏的"今天"按钮，简化界面
+
+### 日历页面完成情况
+- [X] 月历显示功能
+- [X] 节假日标识和查询
+- [X] 待办事项显示和统计
+- [X] 用户信息显示
+- [X] 日期选择和导航
+- [X] 下拉刷新功能
+- [X] 响应式设计
+
+### 添加待办页面完成情况
+- [X] 三种输入模式（手动/AI文字/图片识别）
+- [X] 完整的表单验证和输入处理
+- [X] AI文字分析功能集成
+- [X] 图片上传和AI识别功能
+- [X] 标签和优先级管理
+- [X] 提醒设置功能
+- [X] 表单预览和保存功能
+- [X] 响应式设计和动画效果
+- [X] 图片识别结果正确显示和表单自动填充
+- [X] 保存按钮状态正确更新

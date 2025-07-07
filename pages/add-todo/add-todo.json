@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "添加待办事项",
+  "navigationBarBackgroundColor": "#6366f1",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#f8fafc",
+  "backgroundTextStyle": "light",
+  "enablePullDownRefresh": false,
+  "usingComponents": {}
+} 

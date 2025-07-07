@@ -1,0 +1,293 @@
+<!--pages/add-todo/add-todo.wxml-->
+<view class="add-todo-container">
+  <!-- 顶部模式切换 -->
+  <view class="mode-tabs">
+    <view class="tab-item {{mode === 'ai-text' ? 'active' : ''}}" bindtap="onModeChange" data-mode="ai-text">
+      <text class="tab-icon">🤖</text>
+      <text class="tab-text">AI文字分析</text>
+    </view>
+    <view class="tab-item {{mode === 'ai-image' ? 'active' : ''}}" bindtap="onModeChange" data-mode="ai-image">
+      <text class="tab-icon">📸</text>
+      <text class="tab-text">图片识别</text>
+    </view>
+    <view class="tab-item {{mode === 'manual' ? 'active' : ''}}" bindtap="onModeChange" data-mode="manual">
+      <text class="tab-icon">✏️</text>
+      <text class="tab-text">手动输入</text>
+    </view>
+  </view>
+
+  <!-- 手动输入模式 -->
+  <view wx:if="{{mode === 'manual'}}" class="manual-mode">
+    <view class="form-section">
+      <view class="section-title">基本信息</view>
+      
+      <!-- 标题 -->
+      <view class="form-group">
+        <view class="form-label">待办标题 <text class="required">*</text></view>
+        <input 
+          class="form-input"
+          placeholder="请输入待办事项标题"
+          value="{{form.title}}"
+          bindinput="onTitleInput"
+          maxlength="100"
+        />
+      </view>
+
+      <!-- 描述 -->
+      <view class="form-group">
+        <view class="form-label">详细描述</view>
+        <textarea 
+          class="form-textarea"
+          placeholder="请输入详细描述（可选）"
+          value="{{form.description}}"
+          bindinput="onDescriptionInput"
+          maxlength="500"
+        />
+      </view>
+
+      <!-- 日期时间 -->
+      <view class="form-group">
+        <view class="form-label">截止日期 <text class="required">*</text></view>
+        <picker 
+          mode="date" 
+          value="{{datePickerValue}}" 
+          bindchange="onDateChange"
+        >
+          <view class="picker-display">
+            <text class="picker-text">{{form.due_date || '选择日期'}}</text>
+            <text class="picker-icon">📅</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="form-group">
+        <view class="form-label">截止时间</view>
+        <picker 
+          mode="time" 
+          value="{{timePickerValue}}" 
+          bindchange="onTimeChange"
+        >
+          <view class="picker-display">
+            <text class="picker-text">{{form.due_time || '选择时间'}}</text>
+            <text class="picker-icon">⏰</text>
+          </view>
+        </picker>
+      </view>
+
+      <!-- 优先级 -->
+      <view class="form-group">
+        <view class="form-label">优先级</view>
+        <view class="priority-options">
+          <view 
+            class="priority-item {{form.priority === item.value ? 'selected' : ''}}"
+            wx:for="{{priorityOptions}}"
+            wx:key="value"
+            bindtap="onPriorityChange"
+            data-value="{{item.value}}"
+          >
+            <text class="priority-text">{{item.label}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 标签 -->
+      <view class="form-group">
+        <view class="form-label">场景标签</view>
+        <view class="tags-container">
+          <view 
+            class="tag-item {{form.tags.includes(item) ? 'selected' : ''}}"
+            wx:for="{{commonTags}}"
+            wx:key="*this"
+            bindtap="onTagTap"
+            data-tag="{{item}}"
+          >
+            {{item}}
+          </view>
+          <view class="tag-item add-tag" bindtap="onAddCustomTag">
+            <text class="add-icon">+</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 提醒设置 -->
+      <view class="form-group">
+        <view class="form-label">提醒设置</view>
+        <view class="reminder-container">
+          <view class="reminder-toggle">
+            <switch 
+              checked="{{form.reminder_enabled}}" 
+              bindchange="onReminderToggle"
+            />
+            <text class="reminder-text">启用提醒</text>
+          </view>
+          
+          <view wx:if="{{form.reminder_enabled}}" class="reminder-methods">
+            <view 
+              class="method-item {{form.reminder_method === item.value ? 'selected' : ''}}"
+              wx:for="{{reminderOptions}}"
+              wx:key="value"
+              bindtap="onReminderMethodChange"
+              data-value="{{item.value}}"
+            >
+              {{item.label}}
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- AI文字分析模式 -->
+  <view wx:if="{{mode === 'ai-text'}}" class="ai-text-mode">
+    <view class="form-section">
+      <view class="section-title">AI文字分析</view>
+      <view class="section-subtitle">输入自然语言，AI会自动提取待办事项信息</view>
+      
+      <view class="form-group">
+        <textarea 
+          class="ai-textarea"
+          placeholder="例如：明天下午3点和张三开会讨论项目，很紧急"
+          value="{{aiAnalysisText}}"
+          bindinput="onAiTextInput"
+          maxlength="1000"
+        />
+      </view>
+
+      <view class="ai-actions">
+        <button 
+          class="ai-analyze-btn"
+          bindtap="onAiTextAnalysis"
+          disabled="{{loading || aiAnalysisText.length === 0}}"
+        >
+          <text wx:if="{{!loading}}">🤖 AI分析</text>
+          <text wx:else>分析中...</text>
+        </button>
+      </view>
+
+
+    </view>
+  </view>
+
+  <!-- 图片识别模式 -->
+  <view wx:if="{{mode === 'ai-image'}}" class="ai-image-mode">
+    <view class="form-section">
+      <view class="section-title">图片识别</view>
+      <view class="section-subtitle">拍照或选择图片，AI会自动识别其中的待办事项信息</view>
+      
+      <!-- 图片选择 -->
+      <view class="image-section">
+        <view wx:if="{{!selectedImage}}" class="image-placeholder" bindtap="onChooseImage">
+          <text class="placeholder-icon">📸</text>
+          <text class="placeholder-text">点击选择图片</text>
+        </view>
+        
+        <view wx:else class="image-preview">
+          <image 
+            class="preview-image" 
+            src="{{selectedImage}}" 
+            mode="aspectFit"
+            bindtap="onPreviewImage"
+          />
+          <view class="image-actions">
+            <button class="image-btn" bindtap="onImageAnalysis" disabled="{{loading}}">
+              <text wx:if="{{!loading}}">🔍 重新识别</text>
+              <text wx:else>识别中...</text>
+            </button>
+            <button class="image-btn secondary" bindtap="onClearImage">
+              <text>🗑️ 清除</text>
+            </button>
+          </view>
+        </view>
+      </view>
+
+
+    </view>
+  </view>
+
+  <!-- 表单预览和操作 -->
+  <view wx:if="{{mode !== 'manual'}}" class="form-preview">
+    <view class="preview-title">待办事项预览</view>
+    <view class="preview-content">
+      <view class="preview-item">
+        <text class="preview-label">标题：</text>
+        <text class="preview-value">{{form.title || '未填写'}}</text>
+      </view>
+      <view class="preview-item" wx:if="{{form.description}}">
+        <text class="preview-label">描述：</text>
+        <text class="preview-value">{{form.description}}</text>
+      </view>
+      <view class="preview-item">
+        <text class="preview-label">日期：</text>
+        <text class="preview-value">{{form.due_date || '未选择'}}</text>
+      </view>
+      <view class="preview-item">
+        <text class="preview-label">时间：</text>
+        <text class="preview-value">{{form.due_time || '未选择'}}</text>
+      </view>
+      <view class="preview-item">
+        <text class="preview-label">优先级：</text>
+        <text class="preview-value">{{form.priority}}</text>
+      </view>
+      <view class="preview-item" wx:if="{{form.tags && form.tags.length > 0}}">
+        <text class="preview-label">标签：</text>
+        <text class="preview-value">
+          <text wx:for="{{form.tags}}" wx:key="*this">
+            {{item}}<text wx:if="{{index < form.tags.length - 1}}">, </text>
+          </text>
+        </text>
+      </view>
+      <view class="preview-item" wx:if="{{form.involved_users && form.involved_users.length > 0}}">
+        <text class="preview-label">涉及人员：</text>
+        <text class="preview-value">
+          <text wx:for="{{form.involved_users}}" wx:key="*this">
+            {{item}}<text wx:if="{{index < form.involved_users.length - 1}}">, </text>
+          </text>
+        </text>
+      </view>
+      <view class="preview-item">
+        <text class="preview-label">提醒：</text>
+        <text class="preview-value">{{form.reminder_enabled ? form.reminder_method : '不提醒'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-actions">
+    <!-- 多个待办事项时的操作按钮 -->
+    <view wx:if="{{extractedTodos.length > 1}}" class="multi-todo-actions">
+      <button 
+        class="action-btn secondary" 
+        bindtap="onSkipTodo"
+        disabled="{{loading}}"
+      >
+        跳过
+      </button>
+      <button 
+        class="action-btn primary" 
+        bindtap="onSaveAndNext"
+        disabled="{{loading || !formValid}}"
+      >
+        <text wx:if="{{!loading}}">保存并下一个</text>
+        <text wx:else>保存中...</text>
+      </button>
+    </view>
+    
+    <!-- 单个待办事项时的操作按钮 -->
+    <view wx:else class="single-todo-actions">
+      <button 
+        class="action-btn primary full-width" 
+        bindtap="onSubmit"
+        disabled="{{loading || !formValid}}"
+      >
+        <text wx:if="{{!loading}}">保存</text>
+        <text wx:else>保存中...</text>
+      </button>
+    </view>
+  </view>
+
+  <!-- 加载遮罩 -->
+  <view class="loading-overlay" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">处理中...</text>
+  </view>
+</view> 

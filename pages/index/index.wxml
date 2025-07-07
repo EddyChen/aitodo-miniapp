@@ -1,0 +1,52 @@
+<!--pages/index/index.wxml-->
+<view class="page">
+  <!-- 顶部用户信息栏 -->
+  <view class="header" wx:if="{{hasUserInfo}}">
+    <view class="user-section" bindtap="toggleUserPanel">
+      <image class="user-avatar-small" src="{{userInfo.avatarUrl}}" mode="cover"></image>
+      <text class="user-name-small">{{userInfo.nickName}}</text>
+      <text class="toggle-icon">{{showUserPanel ? '▲' : '▼'}}</text>
+    </view>
+    
+    <!-- 用户面板 -->
+    <view class="user-panel" wx:if="{{showUserPanel}}">
+      <view class="user-info-detail">
+        <image class="user-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
+        <text class="user-name">{{userInfo.nickName}}</text>
+      </view>
+      <view class="panel-actions">
+        <button class="panel-btn" bindtap="reauth" size="mini">重新授权</button>
+        <button class="panel-btn" bindtap="reloadWebview" size="mini">刷新页面</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- WebView容器 -->
+  <view class="webview-container">
+    <!-- 加载状态 -->
+    <view class="loading-container" wx:if="{{webviewLoading}}">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">正在加载AI待办助理...</text>
+    </view>
+
+    <!-- 错误状态 -->
+    <view class="error-container" wx:if="{{webviewError}}">
+      <view class="error-icon">⚠️</view>
+      <text class="error-title">页面加载失败</text>
+      <text class="error-desc">请检查网络连接或稍后重试</text>
+      <button class="retry-btn btn-primary" bindtap="reloadWebview">重新加载</button>
+    </view>
+
+    <!-- WebView组件 -->
+    <web-view 
+      wx:if="{{!webviewError}}"
+      src="{{webviewUrl}}"
+      bindload="onWebviewLoad"
+      binderror="onWebviewError"
+      bindmessage="onWebviewMessage"
+    ></web-view>
+  </view>
+
+  <!-- 遮罩层 -->
+  <view class="mask" wx:if="{{showUserPanel}}" bindtap="toggleUserPanel"></view>
+</view> 

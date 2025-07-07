@@ -1,0 +1,151 @@
+<!--pages/calendar/calendar.wxml-->
+<view class="calendar-container">
+  <!-- 顶部头部 -->
+  <view class="header-section">
+    <!-- 用户信息 -->
+    <view class="user-info">
+      <view class="user-avatar">
+        <text class="avatar-text">{{userInfo.name ? userInfo.name.charAt(0) : 'U'}}</text>
+      </view>
+      <view class="user-details">
+        <view class="user-name">{{userInfo.name || '用户'}}</view>
+        <view class="user-phone">{{userInfo.phone || ''}}</view>
+      </view>
+      <view class="user-actions">
+        <button class="logout-btn" bindtap="onLogout">
+          <text class="logout-text">退出</text>
+        </button>
+      </view>
+    </view>
+    
+    <!-- 统计信息 -->
+    <view class="stats-section">
+      <view class="stat-item">
+        <view class="stat-number">{{todoStats.total}}</view>
+        <view class="stat-label">总计</view>
+      </view>
+      <view class="stat-item">
+        <view class="stat-number completed">{{todoStats.completed}}</view>
+        <view class="stat-label">完成</view>
+      </view>
+      <view class="stat-item">
+        <view class="stat-number pending">{{todoStats.pending}}</view>
+        <view class="stat-label">待办</view>
+      </view>
+      <view class="stat-item" wx:if="{{todoStats.overdue > 0}}">
+        <view class="stat-number overdue">{{todoStats.overdue}}</view>
+        <view class="stat-label">过期</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 日历区域 -->
+  <view class="calendar-section">
+    <!-- 月份导航 -->
+    <view class="month-nav">
+      <button class="nav-btn" bindtap="onPrevMonth">
+        <text class="nav-icon">‹</text>
+      </button>
+      
+      <view class="month-info">
+        <text class="month-name">{{monthName}}</text>
+      </view>
+      
+      <button class="nav-btn" bindtap="onNextMonth">
+        <text class="nav-icon">›</text>
+      </button>
+    </view>
+
+    <!-- 星期头部 -->
+    <view class="weekdays">
+      <view class="weekday" wx:for="{{weekdays}}" wx:key="index">
+        {{item}}
+      </view>
+    </view>
+
+    <!-- 日历网格 -->
+    <view class="calendar-grid">
+      <view 
+        class="calendar-day {{item.isCurrentMonth ? 'current-month' : 'other-month'}} {{item.isToday ? 'today' : ''}} {{item.isWeekend ? 'weekend' : ''}} {{item.isHoliday ? 'holiday' : ''}} {{item.hasTodos ? 'has-todos' : ''}}"
+        wx:for="{{calendarDays}}"
+        wx:key="index"
+        data-index="{{index}}"
+        bindtap="onDateTap"
+      >
+        <!-- 日期数字 -->
+        <view class="day-number">{{item.day}}</view>
+        
+        <!-- 节假日标识 -->
+        <view class="holiday-badge" wx:if="{{item.isHoliday}}">
+          <text class="holiday-text">{{item.holidayName}}</text>
+        </view>
+        
+        <!-- 待办事项指示器 -->
+        <view class="todo-indicators" wx:if="{{item.hasTodos}}">
+          <view class="todo-dots">
+            <view class="todo-dot pending" wx:if="{{item.pendingCount > 0}}">
+              <text class="dot-count">{{item.pendingCount}}</text>
+            </view>
+            <view class="todo-dot completed" wx:if="{{item.completedCount > 0}}">
+              <text class="dot-count">{{item.completedCount}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 快速操作区域 -->
+  <view class="quick-actions">
+    <button class="action-btn primary" bindtap="onAddTodo">
+      <text class="action-icon">+</text>
+      <text class="action-text">添加待办</text>
+    </button>
+  </view>
+
+  <!-- 今日待办预览 -->
+  <view class="today-preview" wx:if="{{selectedDate}}">
+    <view class="preview-header">
+      <text class="preview-title">{{selectedDate}} 的待办事项</text>
+      <text class="preview-count">({{selectedTodos.length}})</text>
+    </view>
+    
+    <view class="preview-list" wx:if="{{selectedTodos.length > 0}}">
+      <view 
+        class="preview-item {{item.completed ? 'completed' : ''}}"
+        wx:for="{{selectedTodos}}"
+        wx:key="id"
+      >
+        <view class="item-status" bindtap="onToggleTodo" data-id="{{item.id}}">
+          <text class="status-icon">{{item.completed ? '✓' : '○'}}</text>
+        </view>
+        <view class="item-content">
+          <text class="item-title">{{item.title}}</text>
+          <text class="item-description" wx:if="{{item.description}}">{{item.description}}</text>
+          <view class="item-meta">
+            <text class="item-time" wx:if="{{item.due_time}}">⏰ {{item.due_time}}</text>
+            <text class="item-tags" wx:if="{{item.tags && item.tags.length > 0}}">
+              🏷️ {{item.tags.join(', ')}}
+            </text>
+            <text class="item-people" wx:if="{{item.involved_users && item.involved_users.length > 0}}">
+              👥 {{item.involved_users.length}}人
+            </text>
+          </view>
+        </view>
+        <view class="item-priority priority-{{item.priorityClass}}">
+          <text class="priority-text">{{item.priorityLabel}}</text>
+        </view>
+      </view>
+    </view>
+    
+    <view class="preview-empty" wx:else>
+      <text class="empty-text">暂无待办事项</text>
+    </view>
+  </view>
+
+  <!-- 加载提示 -->
+  <view class="loading-overlay" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+</view> 
