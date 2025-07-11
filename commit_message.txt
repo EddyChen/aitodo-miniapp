@@ -1,0 +1,19 @@
+[Cursor] 修复分包配置路径错误
+
+## 问题描述
+- 小程序启动时出现"rootCompPath not found"错误
+- 页面路径无法正确解析
+- 分包配置与实际目录结构不匹配
+
+## 修复方案
+- 取消分包配置，所有页面放回主包
+- 简化页面路径配置
+- 保留lazyCodeLoading按需注入功能
+
+## 修复的错误
+- [addView] viewId=-447165940 rootCompPath=pages/login/login not found
+- Component is not found in path "wx://not-found"
+
+## 技术说明
+对于小型项目，分包的收益不大，单包配置更稳定可靠。
+按需注入功能已保留，仍能提供性能优化效果。 

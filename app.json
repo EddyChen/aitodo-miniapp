@@ -1,34 +1,11 @@
 {
   "pages": [
     "pages/login/login",
-    "pages/calendar/calendar"
+    "pages/calendar/calendar",
+    "pages/todo-list/todo-list",
+    "pages/add-todo/add-todo",
+    "pages/todo-detail/todo-detail"
   ],
-  "subpackages": [
-    {
-      "root": "pages/todo-list",
-      "pages": [
-        "todo-list"
-      ]
-    },
-    {
-      "root": "pages/add-todo", 
-      "pages": [
-        "add-todo"
-      ]
-    },
-    {
-      "root": "pages/todo-detail",
-      "pages": [
-        "todo-detail"
-      ]
-    }
-  ],
-  "preloadRule": {
-    "pages/calendar/calendar": {
-      "network": "all",
-      "packages": ["pages/add-todo"]
-    }
-  },
   "lazyCodeLoading": "requiredComponents",
   "window": {
     "backgroundTextStyle": "light",
@@ -37,8 +14,6 @@
     "navigationBarTextStyle": "white",
     "backgroundColor": "#f8fafc"
   },
-
-
   "requiredBackgroundModes": ["audio"],
   "networkTimeout": {
     "request": 10000,

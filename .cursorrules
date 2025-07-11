@@ -125,6 +125,7 @@ If needed, you can further use the `web_scraper.py` file to scrape the web page 
 - 微信小程序代码质量优化：启用分包懒加载需要在app.json中配置subpackages和preloadRule，在project.config.json中启用lazyloadPlaceholderEnable和preloadBackgroundData
 - 小程序图片资源优化：设计参考图片应存放在项目外部，避免超过200K限制影响代码质量评分，运行时图片使用最小化占位符
 - 微信小程序按需注入（Lazy Code Loading）：必须在app.json中添加"lazyCodeLoading": "requiredComponents"配置才能启用按需注入功能，仅配置分包和预加载规则是不够的
+- 微信小程序分包配置问题：分包的root路径配置需要与实际目录结构匹配，如果配置不当会导致"rootCompPath not found"错误，对于小型项目建议使用单包配置避免复杂性
 
 # Scratchpad
 
@@ -239,6 +240,7 @@ If needed, you can further use the `web_scraper.py` file to scrape the web page 
 - 2025-01-10 修复了webview管理错误：优化页面跳转时机，减少延迟时间，添加页面存在性检查，增加onUnload清理逻辑
 - 2025-01-10 修复了微信小程序代码质量问题：启用分包懒加载功能，移除超过200K的设计参考图片，修复损坏的logo.png文件
 - 2025-01-10 修复了懒加载代码配置遗漏：在app.json中添加"lazyCodeLoading": "requiredComponents"配置，正确启用按需注入功能
+- 2025-01-10 修复了分包配置路径错误：取消分包配置，所有页面放回主包，解决"rootCompPath not found"错误
 
 ### UI优化完成 (2025-01-10)
 - 移除了底部tabBar，简化界面
