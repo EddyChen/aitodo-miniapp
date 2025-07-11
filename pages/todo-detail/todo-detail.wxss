@@ -1,0 +1,4 @@
+/* 待办详情页面样式 */
+.container {
+  padding: 20rpx;
+} 
