@@ -23,24 +23,34 @@ Page({
       return
     }
     
-    // 获取系统信息
-    this.getSystemInfo()
+    // 获取应用信息
+    this.getAppInfo()
   },
 
   onShow: function () {
     console.log('[Login] 登录页面显示')
   },
 
-  // 获取系统信息
-  getSystemInfo: function () {
-    wx.getSystemInfo({
-      success: (res) => {
-        this.setData({
-          systemInfo: res
-        })
-        console.log('[Login] 系统信息:', res)
+  // 获取应用基础信息
+  getAppInfo: function () {
+    try {
+      const appInfo = wx.getAppBaseInfo()
+      const deviceInfo = wx.getDeviceInfo()
+      const windowInfo = wx.getWindowInfo()
+      
+      const systemInfo = {
+        ...appInfo,
+        ...deviceInfo,
+        ...windowInfo
       }
-    })
+      
+      this.setData({
+        systemInfo: systemInfo
+      })
+      console.log('[Login] 应用信息:', systemInfo)
+    } catch (error) {
+      console.warn('[Login] 获取应用信息失败:', error)
+    }
   },
 
   // 输入手机号
